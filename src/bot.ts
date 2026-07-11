@@ -1,4 +1,4 @@
-import discord from 'discord.js';
+import { Client, GatewayIntentBits, EmbedBuilder, ChannelType } from 'discord.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -7,8 +7,8 @@ const TOKEN = process.env.DISCORD_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
 const ROLE_ID = process.env.ROLE_ID;
 
-const client = new discord.Client({
-  intents: [discord.GatewayIntentBits.Guilds, discord.GatewayIntentBits.DirectMessages]
+const client = new Client({
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.DirectMessages]
 });
 
 // Black Market notification times (5 minutes before)
@@ -16,7 +16,7 @@ const notificationTimes = ["08:55", "11:55", "14:55", "17:55", "20:55", "23:55",
 
 client.on('ready', () => {
   console.log(`✅ Bot logged in as ${client.user?.tag}`);
-  client.user?.setActivity('for Black Market events', { type: discord.ActivityType.Watching });
+  client.user?.setActivity('for Black Market events', { type: 3 });
   
   // Start checking every minute
   setInterval(checkTime, 60000);
@@ -32,12 +32,12 @@ async function checkTime() {
     try {
       const channel = await client.channels.fetch(CHANNEL_ID!);
       
-      if (channel?.isTextBased()) {
+      if (channel && channel.type === ChannelType.GuildText) {
         const guild = channel.guild;
         const role = await guild.roles.fetch(ROLE_ID!);
 
         if (role) {
-          const embed = new discord.EmbedBuilder()
+          const embed = new EmbedBuilder()
             .setTitle('🏪 Run a Restaurant - Black Market')
             .addFields({
               name: '⏰ Announcement',
